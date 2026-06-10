@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { AppError } from '@/utils/AppError';
 import { knex } from '@/database/knex.js';
 import { z } from 'zod';
 
@@ -83,9 +84,46 @@ class ProductsController {
             // parse pega os dados do request.body e se for igual ele passa
             const { name, price } = bodySchema.parse(request.body);
 
+            //Validando se o produto existe dentro da tabela de produtos
+            const product = await knex<ProductRepository>('products').select().where({ id }).first();
+
+            if (!product) {
+                throw new AppError('product not found');
+            }
+
             //Usando o knex para atualizar o registro na tabela e passando o where com id
             // para atualizar a coluna certa
             await knex<ProductRepository>('products').update({ name, price, updated_at: knex.fn.now() }).where({ id });
+
+            return response.json();
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async remove(request: Request, response: Response, next: NextFunction) {
+        try {
+            /**  Transformando o id de string para number
+             * usando o transform para converter a string para number
+             * .refine  para verificar se realmente o id é um numero se n for vai passar a mensagem
+             * .parse para comparar se o que ta vindo dos parametros bate com o z
+             */
+            const id = z
+                .string()
+                .transform((value) => Number(value))
+                .refine((value) => !isNaN(value), { message: 'id must be a number' })
+                .parse(request.params.id);
+
+            //Validando para ver se realmente existe o id para ser deletado
+            // pegando apenas um produto(Objeto) especifico da lista de array com o metodo first()
+            const product = await knex<ProductRepository>('products').select().where({ id }).first();
+
+            //Usando o APPError para ver se o produto nao existe
+            if (!product) {
+                throw new AppError('product not found');
+            }
+
+            await knex<ProductRepository>('products').delete().where({ id });
 
             return response.json();
         } catch (error) {

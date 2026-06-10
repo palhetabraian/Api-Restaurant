@@ -12,4 +12,7 @@ productsRoutes.post('/', productsController.create);
 //Rota para atualizar
 productsRoutes.put('/:id', productsController.update);
 
+// Rotas para deletar produtos
+productsRoutes.delete('/:id', productsController.remove);
+
 export { productsRoutes };
