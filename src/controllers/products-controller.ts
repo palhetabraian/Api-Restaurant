@@ -4,16 +4,29 @@ import { z } from 'zod';
 
 // Metodos do nosso controller
 class ProductsController {
-    // Controler responsavel por listar os produtos
+    // Controler responsavel por listar os produtos cadastrados
     async index(request: Request, response: Response, next: NextFunction) {
         try {
-            return response.json({ message: 'ok' });
+            // Fazendo pesquisa pelo queryparamter(parametros opcional)
+            const { name } = request.query;
+
+            /**
+             * Usando o select() do propio knex para pegar os produtos da tabela com knex
+             * e jogando na variavel products
+             */
+            const products = await knex<ProductRepository>('products')
+                .select()
+                .whereLike('name', `%${name ?? ''}%`)
+                .orderBy('name');
+
+            return response.json(products);
         } catch (error) {
             next(error);
         }
     }
 
     //controller responsavel por adicionar produto
+    // Nossa Rota de Create
     async create(request: Request, response: Response, next: NextFunction) {
         try {
             // Fazendo a validacao com zod
