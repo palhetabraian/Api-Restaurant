@@ -9,4 +9,7 @@ productsRoutes.get('/', productsController.index);
 //Rota responsavel por criar produtos
 productsRoutes.post('/', productsController.create);
 
+//Rota para atualizar
+productsRoutes.put('/:id', productsController.update);
+
 export { productsRoutes };
