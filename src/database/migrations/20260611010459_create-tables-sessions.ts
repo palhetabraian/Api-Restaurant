@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.schema.createTable('table_sessions', (table) => {
+    await knex.schema.createTable('tables_sessions', (table) => {
         table.increments('id').primary();
         /**  Fazendo a conexao das seguintes colunas e vamos usar referencia.
          *  é o id que existe na tabela tables
