@@ -7,6 +7,7 @@ import { knex } from '@/database/knex';
 import { z } from 'zod';
 
 class TablesSessionsController {
+    // metodo para criar as sessoes da mesa
     async create(request: Request, response: Response, next: NextFunction) {
         try {
             const bodySchema = z.object({
@@ -41,11 +42,29 @@ class TablesSessionsController {
         }
     }
 
+    // metodo para listar todas as sessoes de mesa
     async index(request: Request, response: Response, next: NextFunction) {
         try {
             const sessions = await knex<TablesSessionsRepository>('tables_sessions').orderBy('closed_at');
 
             return response.json(sessions);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // metodo para finalizar a sessao de uma mesa
+
+    async update(request: Request, response: Response, next: NextFunction) {
+        try {
+            // validando o id e refinando para ser um numero
+            const id = z
+                .string()
+                .transform((value) => Number(value))
+                .refine((value) => !isNaN(value), { message: 'id must be a number' })
+                .parse(request.params.id);
+
+            return response.json();
         } catch (error) {
             next(error);
         }
